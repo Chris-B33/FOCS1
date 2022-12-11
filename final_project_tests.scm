@@ -1,0 +1,45 @@
+#lang racket
+
+;; List for mapping decimal to hexadecimal
+(define hex '(0 1 2 3 4 5 6 7 8 9 A B C D E F))
+
+;; Given value from 0-15, map it to corresponding value in hex
+(define getHexVal (lambda (x n)
+                    (if (eq? n 0)
+                        (car x)
+                        (getHexVal (cdr x) (- n 1))
+                     )))
+
+;; Get the remainder of x / y, modulus function ;;
+(define mod (lambda (x y)
+              (if (< (- x y) y)
+                  (if (< x y)
+                      x
+                      (- x y))
+                  (mod (- x y) y)
+               )))
+
+;; Given decimal value, convert it into a list of seperate hex values reversed
+(define getListOfHexVals (lambda (n)
+                           (if (eq? (quotient n 16) 0)
+                               (list (getHexVal hex (mod n 16)))
+                               (flatten (list (getHexVal hex (mod n 16)) (getListOfHexVals (quotient n 16))))
+                            )))
+
+;; Use above functions to get list of hex values, map them as strings, reverse them and join them together as one ;;
+(define decToHex (lambda (n)
+                   (if (integer? n)
+                       (string-join (reverse (map ~s (getListOfHexVals n))) "")
+                       "invalid input"
+                    )))
+
+;; Test Data ;;
+(decToHex 16)
+(decToHex "a")
+(decToHex 48)
+(decToHex 11)
+(decToHex 28)
+
+;; Test List Data ;;
+(map decToHex '(16 "a" 48 11 28))
+(map decToHex '(256 0 2 "2a" "Z"))
